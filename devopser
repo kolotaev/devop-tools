@@ -1,0 +1,18 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+
+parser = OptionParser.new do |opts|
+  opts.banner = "Usage: devopser [command] [options]"
+  opts.on("-l", "--list", "List available docker-composes") do
+    Act.list
+  end
+end
+
+class Act
+  def self.list
+    p "i'm list"
+  end
+end
+
+parser.parse!
