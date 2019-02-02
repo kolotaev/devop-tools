@@ -2,17 +2,41 @@
 
 require 'optparse'
 
-parser = OptionParser.new do |opts|
-  opts.banner = "Usage: devopser [command] [options]"
-  opts.on("-l", "--list", "List available docker-composes") do
+# Set working dir
+Dir.chdir(__dir__)
+
+# Define available options here
+# ARGV << '-h' if ARGV.empty? || !(ARGV.first.start_with? '-')
+ARGV << '-h' if ARGV.empty?
+
+options = {}
+parser = OptionParser.new do |op|
+  op.version = '1.0.0'
+  op.banner = "Usage: #{op.program_name} [command] [options [args]]"
+  op.on("-l", "--list", "List available docker-composes") { |o| options[:list] = o }
+  op.on("-d", "--detached", "List available docker-composes") { |o| options[:detached] = o }
+  op.on("-e", "--ext [EXTENSION]", "List available docker-composes") { |o| options[:extension] = o }
+  # op.on_tail("-h", "--help", "Show this message") { puts op; exit }
+  # op.on_tail("--version", "Show version")  { puts op.version }
+end
+
+def run_action
+  case ARGV.shift
+  when 'list'
     Act.list
   end
 end
 
+# Define all actions here
 class Act
   def self.list
-    p "i'm list"
+    puts 'Available docker-compose items:'
+    Dir.glob('composes/*').each do |f| 
+      puts File.basename f if File.directory? f
+    end
   end
 end
 
+# Just run
 parser.parse!
+run_action
