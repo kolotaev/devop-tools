@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'clamp'
+require 'yaml'
 
 # Set working dir
 Dir.chdir(__dir__)
@@ -13,8 +14,22 @@ Clamp do
 
   subcommand ['docker', 'dc'], 'Run docker-compose for a set of services' do
     subcommand ['list', 'l'], 'Show all existing dockerized service-sets' do
+      option "--ports", :flag, "show local ports that services use"
       def execute
-        puts list COMPOSES
+        service_sets = list COMPOSES
+        service_sets.each do |name, ss|
+          if ports?
+            Dir.chdir("#{COMPOSES}/#{name}") do
+              file = File.exist?('docker-compose.yml') ? 'docker-compose.yml' : 'docker-compose.yaml'
+              ports = YAML.load_file(file).fetch('services', {})
+                      .map{ |k,v| v.fetch('ports', []) }.flatten
+                      .map{ |v| v.split(':').first.to_i }
+              puts name + '. Uses ports: ' + ports.to_s
+            end
+          else
+            puts name
+          end
+        end
       end
     end
     subcommand ['run', 'r'], 'Run docker-compose command' do
