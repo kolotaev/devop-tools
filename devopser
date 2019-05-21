@@ -1,47 +1,58 @@
 #!/usr/bin/env ruby
 
-require 'optparse'
+require 'clamp'
 
 # Set working dir
 Dir.chdir(__dir__)
 
-# Define available options here
-# ARGV << '-h' if ARGV.empty? || !(ARGV.first.start_with? '-')
-ARGV << '-h' if ARGV.empty?
+COMPOSES = 'composes'
+VAGRANTS = 'vagrants'
 
-def run_action
-  case ARGV.shift
-  when 'list'
-    options = {}
-    parser = OptionParser.new do |op|
-      op.on("-e", "--ext [EXTENSION]", "List available docker-composes") { |o| options[:extension] = o }
-      op.on_tail("-h", "--help", "Show this message") { puts op; exit }
-    end.parse!
-    Act.list options
-  when 'run'
-    options = {}
-    parser = OptionParser.new do |op|
-      op.on("-d", "--detached", "List available docker-composes") { |o| options[:detached] = o }
-      op.on("-e", "--ext [EXTENSION]", "List available docker-composes") { |o| options[:extension] = o }
-      op.on_tail("-h", "--help", "Show this message") { puts op; exit }
-    end.parse!
-    Act.list options
-  when nil, '-h', '--help'
-    puts "Usage: devopser [command] [options [args]]"
-  when '--version', nil
-    puts '1.0.0'
-  end
-end
+Clamp do
+  banner ['-' * 20, ' Devop for pleasure', '-' * 20].join "\n"
 
-# Define all actions here
-class Act
-  def self.list(opts)
-    puts 'Available docker-compose items:'
-    Dir.glob('composes/*').each do |f| 
-      puts File.basename f if File.directory? f
+  subcommand ['docker', 'dc'], 'Run docker-compose for a set of services' do
+    subcommand ['list', 'l'], 'Show all existing dockerized service-sets' do
+      def execute
+        puts list COMPOSES
+      end
+    end
+    subcommand ['run', 'r'], 'Run docker-compose command' do
+      parameter 'SRV', "specific service-set" do |srv|
+        raise ArgumentError, 'Unknown service. Run list command' unless valid_item?(srv, 'composes')
+        srv
+      end
+      parameter 'COMPOSE_COMMANDS ...', "docker-compose commands ", attribute_name: :cmds
+      def execute
+        Dir.chdir("#{COMPOSES}/#{srv}") do
+          system('docker-compose', *cmds)
+        end
+      end
     end
   end
-end
 
-# Just run
-run_action
+  subcommand 'vm', 'Run specified virtual machine' do
+    subcommand ['list', 'l'], 'Show all existing VMs' do
+      def execute
+        puts list VAGRANTS
+      end
+    end
+  end
+
+  option ['-v', '--version'], :flag, 'Show version' do
+    puts '0.1.0'
+    exit(0)
+  end
+
+  private
+
+  def list(dir)
+    Dir.chdir(dir) do
+      Dir.glob('*')
+    end
+  end
+
+  def valid_item?(item, in_dir)
+    list(in_dir).include? item
+  end
+end
