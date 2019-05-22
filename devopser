@@ -17,14 +17,14 @@ Clamp do
       option "--ports", :flag, "show local ports that services use"
       def execute
         service_sets = list COMPOSES
-        service_sets.each do |name, ss|
+        service_sets.each_entry do |name|
           if ports?
             Dir.chdir("#{COMPOSES}/#{name}") do
               file = File.exist?('docker-compose.yml') ? 'docker-compose.yml' : 'docker-compose.yaml'
               ports = YAML.load_file(file).fetch('services', {})
                       .map{ |k,v| v.fetch('ports', []) }.flatten
-                      .map{ |v| v.split(':').first.to_i }
-              puts name + '. Uses ports: ' + ports.to_s
+                      .map{ |v| v.split(':').first.to_i }.sort
+              puts name + ' -> ' + ports.to_s
             end
           else
             puts name
@@ -50,6 +50,18 @@ Clamp do
     subcommand ['list', 'l'], 'Show all existing VMs' do
       def execute
         puts list VAGRANTS
+      end
+    end
+    subcommand ['run', 'r'], 'Run vagrant command' do
+      parameter 'VM', "specific virtual machine" do |vm|
+        raise ArgumentError, 'Unknown vm. Run list command' unless valid_item?(vm, 'vagrants')
+        vm
+      end
+      parameter 'VAGRANT_COMMANDS ...', "vagrant commands ", attribute_name: :cmds
+      def execute
+        Dir.chdir("#{VAGRANTS}/#{vm}") do
+          system('vagrant', *cmds)
+        end
       end
     end
   end
