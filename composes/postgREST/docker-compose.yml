@@ -3,6 +3,7 @@ version: '3.1'
 services:
   server:
     image: postgrest/postgrest
+    container_name: postgres_rest
     ports:
       - "3000:3000"
     links:
@@ -15,6 +16,7 @@ services:
       - db
   db:
     image: postgres:9.6
+    container_name: postgres_db
     ports:
       - "5432:5432"
     environment:
