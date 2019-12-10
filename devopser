@@ -66,6 +66,13 @@ Clamp do
     end
   end
 
+  subcommand ['edit', 'e'], 'Edit source files' do
+    parameter '[EDITOR]', "editor to open files with ", default: 'subl'
+    def execute
+      system(editor, '.')
+    end
+  end
+
   option ['-v', '--version'], :flag, 'Show version' do
     puts '0.1.0'
     exit(0)
