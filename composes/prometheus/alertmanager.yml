@@ -1,0 +1,17 @@
+# alertmanager.yml
+route:
+  group_by: [alertname]
+  # Send all notifications to me.
+  receiver: email-me
+
+receivers:
+- name: email-me
+  email_configs:
+  - to: <email-receiving-notifications>
+    from: <email-sending-notifications>
+    smarthost: smtp-relay:25
+    require_tls: false
+#    smarthost: smtp.gmail.com:587
+#    auth_username: <username>@gmail.com
+#    auth_identity: <username>@gmail.com
+#    auth_password: <password>

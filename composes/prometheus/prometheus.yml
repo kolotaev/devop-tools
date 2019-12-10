@@ -3,6 +3,9 @@ global:
   external_labels:
     monitor: 'sweet-monitor'
 
+rule_files:
+    - 'alert.rules'
+
 scrape_configs:
   - job_name: 'prometheus'
     scrape_interval: 5s
@@ -11,9 +14,9 @@ scrape_configs:
         labels:
           group: 'local'
 
-  - job_name: 'sweet'
+  - job_name: 'api'
     scrape_interval: 5s
     static_configs:
-      - targets: ['sts']
+      - targets: ['host.docker.internal:7777'] # it should be forwarded from minikube to host
         labels:
           group: 'honey'
