@@ -15,7 +15,7 @@ services:
     depends_on:
       - db
   db:
-    image: postgres:9.6
+    image: postgres:12-alpine
     container_name: postgres_db
     ports:
       - "5432:5432"

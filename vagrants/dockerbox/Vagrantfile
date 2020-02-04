@@ -2,19 +2,21 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "debian/jessie64"
+  config.vm.box = "debian/stretch64"
   config.ssh.insert_key = false
 
   config.vm.provider :virtualbox do |v|
-    v.name = "docker"
+    v.name = "dockerbox"
     v.memory = 512
     v.cpus = 1
     v.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     v.customize ["modifyvm", :id, "--ioapic", "on"]
   end
 
-  config.vm.hostname = "lamp"
+  config.vm.hostname = "dockerbox"
   config.vm.network :private_network, ip: "192.168.100.60"
 
   config.vm.provision "shell", path: "provision.sh", privileged: true
+
+  config.vm.synced_folder "~", "/shared"
 end
