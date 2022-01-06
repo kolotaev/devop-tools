@@ -13,16 +13,17 @@ services:
     networks:
       - redis_net
 
-  idp:
+  ui:
     depends_on:
       - redis
-    image: tenstartups/redis-commander
+    image: ghcr.io/joeferner/redis-commander
     container_name: redis_comndr
-    command: --redis-host redis
     ports:
       - 8081:8081
     links:
       - redis:redis
+    environment:
+      - REDIS_HOST=eventbus
     restart: always
     networks:
       - redis_net
