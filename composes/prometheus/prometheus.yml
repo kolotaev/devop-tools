@@ -20,3 +20,19 @@ scrape_configs:
       - targets: ['host.docker.internal:7777'] # it should be forwarded from minikube to host
         labels:
           group: 'honey'
+
+  - job_name: 'sts'
+    scrape_interval: 1s
+    metrics_path: '/health/prometheus'
+    static_configs:
+      - targets: ['docker.for.mac.localhost:7777'] # it should be forwarded from minikube to host
+        labels:
+          group: 'honey'
+
+  - job_name: 'sts-direct'
+    scrape_interval: 5s
+    metrics_path: '/metrics'
+    static_configs:
+      - targets: ['host.docker.internal:4444'] # it should be forwarded from minikube to host
+        labels:
+          group: 'honey'

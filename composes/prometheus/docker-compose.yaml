@@ -19,8 +19,9 @@ services:
     container_name: grafana_cntr
     ports:
       - 3000:3000
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=password
+    # use admin/admin
+    # environment:
+    #   - GF_SECURITY_ADMIN_PASSWORD=password
     volumes:
       - ./extra/grafana_db:/var/lib/grafana grafana/grafana
     # network_mode: "host"
